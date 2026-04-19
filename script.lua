@@ -7,7 +7,7 @@ Rayfield:LoadConfiguration()
 local Window = Rayfield:CreateWindow({
     Name = "Movement Hacks - Industriallist",
     LoadingTitle = "Fly | Noclip | Speed | Jump",
-    LoadingSubtitle = "by Grok",
+    LoadingSubtitle = "bởi ái ny💖💗💓",
     ConfigurationSaving = { Enabled = true, FolderName = "MovementHacks", FileName = "Config" },
 })
 
@@ -121,7 +121,7 @@ end
 
 -- ====== Menu Toggles & Sliders ======
 MovementTab:CreateToggle({
-    Name = "Fly (Bay)",
+    Name = "bay",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
@@ -144,7 +144,7 @@ MovementTab:CreateSlider({
 })
 
 MovementTab:CreateToggle({
-    Name = "Noclip (Xuyên tường)",
+    Name = "đi xuyên tường",
     CurrentValue = false,
     Callback = function(Value)
         ToggleNoclip(Value)
@@ -152,7 +152,7 @@ MovementTab:CreateToggle({
 })
 
 MovementTab:CreateSlider({
-    Name = "WalkSpeed (Tốc độ chạy)",
+    Name = "chạy nhanh",
     Range = {16, 300},
     Increment = 5,
     Suffix = "Studs/s",
@@ -163,7 +163,7 @@ MovementTab:CreateSlider({
 })
 
 MovementTab:CreateSlider({
-    Name = "JumpPower (Sức nhảy)",
+    Name = "Sức nhảy",
     Range = {50, 300},
     Increment = 5,
     Suffix = "",
@@ -177,7 +177,7 @@ local InfiniteJumpEnabled = false
 local JumpConnection
 
 MovementTab:CreateToggle({
-    Name = "Infinite Jump (Nhảy vô hạn)",
+    Name = "Nhảy vô hạn",
     CurrentValue = false,
     Callback = function(Value)
         InfiniteJumpEnabled = Value
