@@ -1,5 +1,4 @@
-# industrialist
--- ====== Rayfield Movement Hacks (Fly + Noclip + Speed + Jump) ====== --
+-- ====== Rayfield Movement Hacks - Industriallist (Đã sửa lỗi) ====== --
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 Rayfield:LoadConfiguration()
 
@@ -25,67 +24,67 @@ local RootPart = Character:WaitForChild("HumanoidRootPart")
 -- Variables
 local FlyEnabled = false
 local NoclipEnabled = false
-local CurrentSpeed = 50
-local CurrentJump = 50
 local FlySpeed = 100
 local BodyVelocity = nil
 local BodyGyro = nil
 
 -- Update character khi respawn
 LocalPlayer.CharacterAdded:Connect(function(newChar)
+    task.wait(0.5)
     Character = newChar
     Humanoid = newChar:WaitForChild("Humanoid")
     RootPart = newChar:WaitForChild("HumanoidRootPart")
 end)
 
+-- ====== Fly Function (Đã sửa) ======
 local function StartFly()
     if BodyVelocity then BodyVelocity:Destroy() end
     if BodyGyro then BodyGyro:Destroy() end
 
     BodyVelocity = Instance.new("BodyVelocity")
+    BodyVelocity.Name = "FlyVelocity"
     BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-    BodyVelocity.Velocity = Vector3.zero
+    BodyVelocity.Velocity = Vector3.new(0,0,0)
     BodyVelocity.Parent = RootPart
 
     BodyGyro = Instance.new("BodyGyro")
+    BodyGyro.Name = "FlyGyro"
     BodyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
     BodyGyro.P = 15000
-    BodyGyro.CFrame = RootPart.CFrame
     BodyGyro.Parent = RootPart
 
     FlyEnabled = true
 
-    local currentVelocity = Vector3.zero
-    local acceleration = 0.2 -- smoothing (0.1 = slow, 1 = instant)
+    local currentVelocity = Vector3.new(0,0,0)
+    local acceleration = 0.25
 
     task.spawn(function()
         while FlyEnabled and RootPart and RootPart.Parent do
-            local cam = workspace.CurrentCamera
-            local moveDirection = Vector3.zero
+            pcall(function()
+                local cam = workspace.CurrentCamera
+                local moveDirection = Vector3.new(0,0,0)
 
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDirection += cam.CFrame.LookVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDirection -= cam.CFrame.LookVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDirection -= cam.CFrame.RightVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDirection += cam.CFrame.RightVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDirection += Vector3.yAxis end
-            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDirection -= Vector3.yAxis end
+                if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDirection += cam.CFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDirection -= cam.CFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDirection -= cam.CFrame.RightVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDirection += cam.CFrame.RightVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDirection += Vector3.new(0,1,0) end
+                if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDirection -= Vector3.new(0,1,0) end
 
-            local targetVelocity = Vector3.zero
-            if moveDirection.Magnitude > 0 then
-                targetVelocity = moveDirection.Unit * FlySpeed
-            end
+                local targetVelocity = Vector3.new(0,0,0)
+                if moveDirection.Magnitude > 0 then
+                    targetVelocity = moveDirection.Unit * FlySpeed
+                end
 
-            -- smooth interpolation
-            currentVelocity = currentVelocity:Lerp(targetVelocity, acceleration)
-            BodyVelocity.Velocity = currentVelocity
-
-            BodyGyro.CFrame = cam.CFrame
-
+                currentVelocity = currentVelocity:Lerp(targetVelocity, acceleration)
+                BodyVelocity.Velocity = currentVelocity
+                BodyGyro.CFrame = cam.CFrame
+            end)
             task.wait()
         end
 
-        if BodyVelocity then BodyVelocity:Destroy() end
-        if BodyGyro then BodyGyro:Destroy() end
+        if BodyVelocity then BodyVelocity:Destroy() BodyVelocity = nil end
+        if BodyGyro then BodyGyro:Destroy() BodyGyro = nil end
     end)
 end
 
@@ -100,6 +99,7 @@ local NoclipConnection
 local function ToggleNoclip(state)
     NoclipEnabled = state
     if state then
+        if NoclipConnection then NoclipConnection:Disconnect() end
         NoclipConnection = RunService.Stepped:Connect(function()
             if Character then
                 for _, part in pairs(Character:GetDescendants()) do
@@ -114,13 +114,12 @@ local function ToggleNoclip(state)
             NoclipConnection:Disconnect()
             NoclipConnection = nil
         end
-        -- Reset CanCollide (có thể không reset hết)
     end
 end
 
--- ====== Menu Toggles & Sliders ======
+-- ====== Menu ======
 MovementTab:CreateToggle({
-    Name = "bay",
+    Name = "Bay (Fly)",
     CurrentValue = false,
     Callback = function(Value)
         if Value then
@@ -143,7 +142,7 @@ MovementTab:CreateSlider({
 })
 
 MovementTab:CreateToggle({
-    Name = "đi xuyên tường",
+    Name = "Đi xuyên tường (Noclip)",
     CurrentValue = false,
     Callback = function(Value)
         ToggleNoclip(Value)
@@ -151,39 +150,40 @@ MovementTab:CreateToggle({
 })
 
 MovementTab:CreateSlider({
-    Name = "chạy nhanh",
+    Name = "Chạy nhanh (WalkSpeed)",
     Range = {16, 300},
     Increment = 5,
     Suffix = "Studs/s",
     CurrentValue = Humanoid.WalkSpeed,
     Callback = function(Value)
-        if Humanoid then Humanoid.WalkSpeed = Value end
+        if Humanoid then 
+            Humanoid.WalkSpeed = Value 
+        end
     end
 })
 
 MovementTab:CreateSlider({
-    Name = "Sức nhảy",
+    Name = "Sức nhảy (JumpPower)",
     Range = {50, 300},
     Increment = 5,
     Suffix = "",
     CurrentValue = Humanoid.JumpPower,
     Callback = function(Value)
-        if Humanoid then Humanoid.JumpPower = Value end
+        if Humanoid then 
+            Humanoid.JumpPower = Value 
+        end
     end
 })
 
 local InfiniteJumpEnabled = false
 local JumpConnection
-
 MovementTab:CreateToggle({
-    Name = "Nhảy vô hạn",
+    Name = "Nhảy vô hạn (Infinite Jump)",
     CurrentValue = false,
     Callback = function(Value)
         InfiniteJumpEnabled = Value
-
-        if InfiniteJumpEnabled then
+        if Value then
             if JumpConnection then JumpConnection:Disconnect() end
-
             JumpConnection = UserInputService.JumpRequest:Connect(function()
                 if Humanoid and InfiniteJumpEnabled then
                     Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
@@ -198,13 +198,4 @@ MovementTab:CreateToggle({
     end
 })
 
--- Auto update WalkSpeed & JumpPower khi character respawn
-LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(1)
-    if Humanoid then
-        Humanoid.WalkSpeed = CurrentSpeed
-        Humanoid.JumpPower = CurrentJump
-    end
-end)
-
-print("Movement Hacks Loaded! Mở menu bằng phím RightShift hoặc F4 (tùy executor)")
+print("✅ Movement Hacks đã load thành công! Mở menu bằng RightShift hoặc F4")
