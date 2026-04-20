@@ -1,5 +1,4 @@
 # industrialist
----this script help you while playing industrialist or others game---
 -- ====== Rayfield Movement Hacks (Fly + Noclip + Speed + Jump) ====== --
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 Rayfield:LoadConfiguration()
